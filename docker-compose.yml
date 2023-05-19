@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: basic-mern-client
+    volumes:
+      - ./client:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - server
+    networks:
+      - app-network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: basic-mern-server
+    volumes:
+      - ./server:/usr/src/app
+      - server_node_modules:/usr/src/app/node_modules
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - db
+    env_file: ./server/.env.local
+    networks:
+      - app-network
+
+  db:
+    image: mongo:latest
+    volumes:
+      - dbdata:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+  server_node_modules:
+  web-root:
+    driver: local
